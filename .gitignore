@@ -1,0 +1,24 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+
+# OS files
+.DS_Store
+
+# IDE
+.idea/
+*.swp
+*.swo
+
+# Private vault - DO NOT COMMIT
+DevVault/
+
+# External plugin (managed separately)
+smart-plugins-obsidian/
+
+# Environment
+.env
+.env.local
+.kiro/

@@ -1,0 +1,60 @@
+.get-core-link {
+  text-wrap: nowrap;
+  font-size: var(--font-ui-small);
+}
+.core-installed-text {
+  text-wrap: nowrap;
+  font-size: var(--font-ui-small);
+  color: var(--text-muted);
+}
+
+.pro-plugins-list {
+  display: flex;
+  flex-direction: column;
+  row-gap: var(--size-4-3);
+  margin-top: var(--size-5);
+}
+
+.pro-plugins-list-item {
+  display: flex;
+  align-items: center;
+  padding: 0.75em 0;
+  border-top: 1px solid var(--background-modifier-border);
+  row-gap: var(--size-4-3);
+}
+
+.pro-plugins-container > .setting-group {
+  .setting-item-name.pro-heading {
+    font-size: var(--h1-size);
+  }
+  &> p {
+    padding: 0 var(--size-4-4);
+  }
+
+}
+
+.smart-plugins-login .setting-item {
+  gap: var(--size-4-3);
+}
+
+.smart-plugins-login-manual {
+  margin-top: var(--size-4-3);
+}
+
+.smart-plugins-login-manual-instructions {
+  font-size: var(--font-ui-small);
+  color: var(--text-muted);
+  margin-bottom: var(--size-2-2);
+}
+
+.smart-plugins-login-manual-controls {
+  display: flex;
+  gap: var(--size-2-2);
+  align-items: center;
+}
+
+.smart-plugins-login-manual-input {
+  flex: 1;
+  min-width: 240px;
+  font-size: var(--font-ui-small);
+}

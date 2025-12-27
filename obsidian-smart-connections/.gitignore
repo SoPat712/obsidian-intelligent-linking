@@ -1,0 +1,11 @@
+.DS_Store
+.env
+.obsidian
+.smart-connections
+.vscode
+dist
+node_modules
+stylesheets
+ref
+
+*.sublime-*

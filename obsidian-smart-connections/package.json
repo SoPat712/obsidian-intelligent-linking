@@ -1,0 +1,75 @@
+{
+  "name": "obsidian-smart-connections",
+  "version": "3.0.80",
+  "type": "module",
+  "description": "Link and chat with your notes using ChatGPT and embedding artificial intelligence from OpenAI.",
+  "scripts": {
+    "build": "node esbuild.js",
+    "release": "node release.js",
+    "test": "npx ava --verbose"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/brianpetro/obsidian-smart-connections.git"
+  },
+  "keywords": [
+    "Obsidian",
+    "Smart",
+    "Connections",
+    "AI",
+    "ChatGPT",
+    "Embeddings",
+    "Notes"
+  ],
+  "author": "🌴 Brian (Brian Petro)",
+  "license": "SEE LICENSE IN LICENSE",
+  "bugs": {
+    "url": "https://github.com/brianpetro/obsidian-smart-connections/issues"
+  },
+  "homepage": "https://smartconnections.app",
+  "devDependencies": {
+    "@xenova/transformers": "latest",
+    "archiver": "^6.0.1",
+    "ava": "^6.0.1",
+    "axios": "^1.6.7",
+    "dotenv": "^16.3.1",
+    "esbuild": "^0.25.9",
+    "swagger-jsdoc": "^6.2.8"
+  },
+  "dependencies": {
+    "js-tiktoken": "^1.0.19",
+    "obsidian": "latest",
+    "smart-blocks": "file:../jsbrains/smart-blocks",
+    "smart-chat-model": "file:../jsbrains/smart-chat-model",
+    "smart-chunks": "file:../jsbrains/smart-chunks",
+    "smart-collections": "file:../jsbrains/smart-collections",
+    "smart-embed-model": "file:../jsbrains/smart-embed-model",
+    "smart-entities": "file:../jsbrains/smart-entities",
+    "obsidian-smart-env": "file:../obsidian-smart-env",
+    "smart-file-system": "file:../jsbrains/smart-fs",
+    "smart-http-request": "file:../jsbrains/smart-http-request",
+    "smart-instruct-model": "file:../jsbrains/smart-instruct-model",
+    "smart-model": "file:../jsbrains/smart-model",
+    "smart-notices": "file:../jsbrains/smart-notices",
+    "smart-settings": "file:../jsbrains/smart-settings",
+    "smart-sources": "file:../jsbrains/smart-sources",
+    "smart-utils": "file:../jsbrains/smart-utils",
+    "smart-view": "file:../jsbrains/smart-view",
+    "smart-chat-obsidian": "file:../smart-chat-obsidian",
+    "smart-context-obsidian": "file:../smart-context-obsidian"
+  },
+  "ava": {
+    "files": [
+      "*.test.js",
+      "smart-chat/*.test.js",
+      "src/*.test.js",
+      "src/utils/*.test.js"
+    ],
+    "require": []
+  },
+  "workspaces": [
+    "../jsbrains/*",
+    "../smart-chat-obsidian",
+    "../smart-context-obsidian"
+  ]
+}
