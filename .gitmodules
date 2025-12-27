@@ -6,15 +6,3 @@
 	path = obsidian-smart-env
 	url = git@github.com:SoPat712/obsidian-smart-env.git
 	branch = main
-[submodule "obsidian-smart-connections"]
-	path = obsidian-smart-connections
-	url = git@github.com:SoPat712/obsidian-smart-connections.git
-	branch = main
-[submodule "smart-context-obsidian"]
-	path = smart-context-obsidian
-	url = git@github.com:SoPat712/smart-context-obsidian.git
-	branch = main
-[submodule "smart-chat-obsidian"]
-	path = smart-chat-obsidian
-	url = git@github.com:SoPat712/smart-chat-obsidian.git
-	branch = main
