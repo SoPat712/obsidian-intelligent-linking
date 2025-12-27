@@ -1,1 +1,0 @@
-MOVED TO https://github.com/brianpetro/obsidian-smart-env
