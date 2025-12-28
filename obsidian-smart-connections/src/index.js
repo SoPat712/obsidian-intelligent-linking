@@ -1,5 +1,5 @@
 import Obsidian from "obsidian";
-const { Notice, Plugin, requestUrl, Platform } = Obsidian;
+const { Notice, Plugin, requestUrl, Platform, TFolder } = Obsidian;
 
 import { SmartEnv } from "obsidian-smart-env";
 import { smart_env_config } from "./smart_env.config.js";
@@ -12,6 +12,7 @@ import { SmartChatGPTView } from "./views/sc_chatgpt.obsidian.js";
 import { SmartPrivateChatView } from "./views/sc_private_chat.obsidian.js";
 import { SmartChatView } from "smart-chat-obsidian/src/smart_chat.obsidian.js";
 import { smart_env_config as smart_chat_env_config } from "smart-chat-obsidian/smart_env.config.js";
+import { smart_env_config as smart_context_env_config } from "smart-context-obsidian/smart_env.config.js";
 
 import { ScSettingsTab } from "./sc_settings_tab.js";
 import { open_note } from "obsidian-smart-env/utils/open_note.js";
@@ -21,6 +22,7 @@ import { merge_env_config } from "obsidian-smart-env";
 import { ConnectionsModal } from "./views/connections_modal.js";
 
 import { SmartChatSettingTab } from "smart-chat-obsidian/src/settings_tab.js";
+import { SmartContextSettingTab } from "smart-context-obsidian/src/views/settings_tab.js";
 
 import { ReleaseNotesView } from "./views/release_notes_view.js";
 
@@ -30,6 +32,11 @@ import { get_random_connection } from "./utils/get_random_connection.js";
 import { add_smart_dice_icon } from "./utils/add_icons.js";
 import { determine_installed_at } from "./utils/determine_installed_at.js";
 import { build_connections_codeblock } from "./utils/build_connections_codeblock.js";
+
+// Smart Context imports
+import { context_commands } from "smart-context-obsidian/src/commands/context_commands.js";
+import { get_selected_note_keys } from "smart-context-obsidian/src/utils/get_selected_note_keys.js";
+import { ContextsDashboardView } from "smart-context-obsidian/src/views/contexts_dashboard_view.js";
 
 export default class SmartConnectionsPlugin extends Plugin {
   ConnectionsSettingsTab = ScSettingsTab;
@@ -42,6 +49,7 @@ export default class SmartConnectionsPlugin extends Plugin {
       // SmartChatGPTView, //moved to Smart ChatGPT plugin
       // SmartPrivateChatView,
       ReleaseNotesView,
+      ContextsDashboardView,
     };
   }
 
@@ -56,6 +64,7 @@ export default class SmartConnectionsPlugin extends Plugin {
         smart_env_config,
       );
       merge_env_config(merged_env_config, smart_chat_env_config);
+      merge_env_config(merged_env_config, smart_context_env_config);
       this._smart_env_config = {
         ...merged_env_config,
         request_adapter: this.obsidian.requestUrl, // NEEDS BETTER HANDLING
@@ -82,6 +91,8 @@ export default class SmartConnectionsPlugin extends Plugin {
     this.addSettingTab(new this.ConnectionsSettingsTab(this.app, this)); // add settings tab
     this.add_commands();
     this.register_code_blocks();
+    this.register_folder_menu();
+    this.register_files_menu();
     add_smart_dice_icon();
     this.add_ribbon_icons();
   }
@@ -117,6 +128,7 @@ export default class SmartConnectionsPlugin extends Plugin {
     await this.check_for_updates();
     this.new_user();
     this.addSettingTab(new SmartChatSettingTab(this.app, this)); // add settings tab
+    this.addSettingTab(new SmartContextSettingTab(this.app, this)); // add settings tab
     this.register(() => {
       console.log("removing smart-chat setting tab");
       this.app.setting.removeSettingTab("smart-chat");
@@ -304,6 +316,18 @@ export default class SmartConnectionsPlugin extends Plugin {
         editor.replaceSelection(build_connections_codeblock(default_settings));
       },
     });
+
+    // Smart Context commands
+    const ctx_commands = context_commands(this);
+    for (const cmd of Object.values(ctx_commands)) {
+      this.addCommand({
+        id: `smart-context-${cmd.id}`,
+        name: `Smart Context: ${cmd.name}`,
+        callback: cmd.callback,
+        checkCallback: cmd.checkCallback,
+        editorCheckCallback: cmd.editorCheckCallback,
+      });
+    }
   }
 
   async open_random_connection() {
@@ -517,5 +541,60 @@ export default class SmartConnectionsPlugin extends Plugin {
    */
   async is_new_plugin_version(current_version) {
     return (await this.get_last_known_version()) !== current_version;
+  }
+
+  // Smart Context: folder right-click menu
+  register_folder_menu() {
+    this.registerEvent(this.app.workspace.on('file-menu', (menu, file) => {
+      if (!(file instanceof TFolder)) return;
+      menu.addItem((item) => {
+        item
+          .setTitle('Copy folder contents to clipboard')
+          .setIcon('documents')
+          .onClick(async () => { await this.copy_folder_to_clipboard(file); });
+      });
+    }));
+  }
+
+  // Smart Context: multi-file selection menu
+  register_files_menu() {
+    this.registerEvent(this.app.workspace.on('files-menu', (menu, files) => {
+      const selected_keys = get_selected_note_keys(files, this.env.smart_sources);
+      if (selected_keys.length < 2) return;
+      menu.addItem((item) => {
+        item
+          .setTitle('Copy selected notes as context')
+          .setIcon('documents')
+          .onClick(async () => {
+            await this.copy_selected_files_to_clipboard(files);
+          });
+      });
+    }));
+  }
+
+  // Smart Context: copy folder to clipboard
+  async copy_folder_to_clipboard(folder) {
+    const add_items = this.env.smart_sources
+      .filter({ key_starts_with: folder.path })
+      .map((src) => src.key);
+    const ctx = this.env.smart_contexts.new_context({}, { add_items });
+    ctx.actions.context_copy_to_clipboard();
+  }
+
+  // Smart Context: copy selected files to clipboard
+  async copy_selected_files_to_clipboard(files) {
+    const add_items = get_selected_note_keys(files, this.env.smart_sources);
+    if (!add_items.length) {
+      new Notice('No Smart Context notes found in selection.');
+      return;
+    }
+    const ctx = this.env.smart_contexts.new_context({}, { add_items });
+    ctx.actions.context_copy_to_clipboard();
+  }
+
+  // Smart Context: open new context modal
+  open_new_context_modal(params = {}) {
+    const ctx = this.env.smart_contexts.new_context();
+    ctx.emit_event('context_selector:open', params);
   }
 }

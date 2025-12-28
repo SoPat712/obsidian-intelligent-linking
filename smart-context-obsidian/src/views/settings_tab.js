@@ -8,6 +8,8 @@ export class SmartContextSettingTab extends SmartPluginSettingsTab {
   constructor(app, plugin) {
     super(app, plugin);
     this.plugin = plugin;
+    this.name = "Smart Context";
+    this.id = "smart-context";
   }
 
   async render_plugin_settings(container) {
