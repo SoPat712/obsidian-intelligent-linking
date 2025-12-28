@@ -2,8 +2,9 @@
 
 A fork of brianpetro's Smart Connections ecosystem, reverted to before the licensing change.
 
-This is my attempt to give back a little to the community. I like OSS, and I really hate paywalls
-This fork removes all pro features and enables them for all. I'll start working on new features only once feature parity has been achieved with the original
+This is my attempt to give back a little to the community. I like OSS, and I really hate paywalls.
+
+This fork removes all pro features and enables them for all. I'll start working on new features only once feature parity has been achieved with the original.
 
 ## Quick Start
 
