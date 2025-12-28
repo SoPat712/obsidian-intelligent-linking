@@ -1,27 +1,86 @@
 #!/bin/bash
-# Quick deploy script for Smart Connections development
+
+# Simple deploy script for Smart Connections plugin
+# Usage: ./deploy.sh <vault_path>
 
 if [ -z "$1" ]; then
-  echo "Usage: ./deploy.sh /path/to/your/vault"
-  echo "Example: ./deploy.sh ~/Documents/DevVault"
-  exit 1
+    echo "Usage: ./deploy.sh <vault_path>"
+    echo "Example: ./deploy.sh DevVault"
+    exit 1
 fi
 
-VAULT_PATH="$1"
-PLUGIN_DIR="$VAULT_PATH/.obsidian/plugins/smart-connections"
+VAULT="$1"
 
-echo "Deploying Smart Connections to: $PLUGIN_DIR"
+# Check if vault exists
+if [ ! -d "$VAULT" ]; then
+    echo "Error: Vault '$VAULT' not found"
+    exit 1
+fi
 
-# Create plugin directory if it doesn't exist
-mkdir -p "$PLUGIN_DIR"
+# Find all folders in the vault
+echo ""
+echo "Looking for plugin folders in '$VAULT'..."
+echo ""
 
-# Copy built files
-cp obsidian-smart-connections/dist/main.js "$PLUGIN_DIR/"
-cp obsidian-smart-connections/dist/manifest.json "$PLUGIN_DIR/"
-cp obsidian-smart-connections/dist/styles.css "$PLUGIN_DIR/"
+# Get folders, prioritize ones with obsidian/plugin in name
+PRIORITY_FOLDERS=()
+OTHER_FOLDERS=()
 
-# Create .hotreload file for the Hot Reload plugin
-touch "$PLUGIN_DIR/.hotreload"
+# Use find to get all directories (including hidden ones)
+while IFS= read -r dir; do
+    name=$(basename "$dir")
+    # Prioritize obsidian/plugin folders
+    if [[ "$name" == *obsidian* ]] || [[ "$name" == *plugin* ]] || [[ "$name" == *Obsidian* ]] || [[ "$name" == *Plugin* ]]; then
+        PRIORITY_FOLDERS+=("$name")
+    else
+        OTHER_FOLDERS+=("$name")
+    fi
+done < <(find "$VAULT" -maxdepth 1 -type d ! -name "$(basename "$VAULT")")
 
-echo "✅ Deployment complete!"
-echo "🔄 Reload Obsidian or use Hot Reload plugin to see changes"
+# Combine arrays - priority first
+ALL_FOLDERS=("${PRIORITY_FOLDERS[@]}" "${OTHER_FOLDERS[@]}")
+
+if [ ${#ALL_FOLDERS[@]} -eq 0 ]; then
+    echo "No folders found in vault"
+    exit 1
+fi
+
+# Display numbered list
+echo "Select a folder for the plugin:"
+echo "--------------------------------"
+i=1
+for folder in "${ALL_FOLDERS[@]}"; do
+    echo "  $i) $folder"
+    ((i++))
+done
+echo ""
+
+# Get user choice
+read -p "Enter number: " choice
+
+# Validate choice
+if ! [[ "$choice" =~ ^[0-9]+$ ]] || [ "$choice" -lt 1 ] || [ "$choice" -gt ${#ALL_FOLDERS[@]} ]; then
+    echo "Invalid choice"
+    exit 1
+fi
+
+# Get selected folder
+SELECTED="${ALL_FOLDERS[$((choice-1))]}"
+DEST="$VAULT/$SELECTED/plugins/smart-connections"
+
+echo ""
+echo "Deploying to: $DEST"
+
+# Create plugin folder if needed
+mkdir -p "$DEST"
+
+# Copy plugin files from dist
+if [ -f "obsidian-smart-connections/dist/main.js" ]; then
+    cp obsidian-smart-connections/dist/main.js "$DEST/"
+    cp obsidian-smart-connections/dist/manifest.json "$DEST/"
+    cp obsidian-smart-connections/dist/styles.css "$DEST/" 2>/dev/null
+    echo "Done! Plugin deployed to $DEST"
+else
+    echo "Error: Build files not found. Run 'npm run build' in obsidian-smart-connections first."
+    exit 1
+fi
