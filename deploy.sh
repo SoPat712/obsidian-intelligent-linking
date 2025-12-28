@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Simple deploy script for Smart Connections plugin
+# deploy script for Smart Connections plugin
 # Usage: ./deploy.sh <vault_path>
 
 if [ -z "$1" ]; then
@@ -11,22 +11,30 @@ fi
 
 VAULT="$1"
 
-# Check if vault exists
+# Check if exists
 if [ ! -d "$VAULT" ]; then
     echo "Error: Vault '$VAULT' not found"
     exit 1
 fi
 
-# Find all folders in the vault
+# Build first
+echo ""
+echo "Building plugin..."
+(cd obsidian-smart-connections && npm run build)
+
+if [ $? -ne 0 ]; then
+    echo "Build failed!"
+    exit 1
+fi
+
+# Find all folders
 echo ""
 echo "Looking for plugin folders in '$VAULT'..."
 echo ""
 
-# Get folders, prioritize ones with obsidian/plugin in name
 PRIORITY_FOLDERS=()
 OTHER_FOLDERS=()
 
-# Use find to get all directories (including hidden ones)
 while IFS= read -r dir; do
     name=$(basename "$dir")
     # Prioritize obsidian/plugin folders
@@ -37,7 +45,6 @@ while IFS= read -r dir; do
     fi
 done < <(find "$VAULT" -maxdepth 1 -type d ! -name "$(basename "$VAULT")")
 
-# Combine arrays - priority first
 ALL_FOLDERS=("${PRIORITY_FOLDERS[@]}" "${OTHER_FOLDERS[@]}")
 
 if [ ${#ALL_FOLDERS[@]} -eq 0 ]; then
@@ -45,7 +52,6 @@ if [ ${#ALL_FOLDERS[@]} -eq 0 ]; then
     exit 1
 fi
 
-# Display numbered list
 echo "Select a folder for the plugin:"
 echo "--------------------------------"
 i=1
@@ -55,16 +61,13 @@ for folder in "${ALL_FOLDERS[@]}"; do
 done
 echo ""
 
-# Get user choice
 read -p "Enter number: " choice
 
-# Validate choice
 if ! [[ "$choice" =~ ^[0-9]+$ ]] || [ "$choice" -lt 1 ] || [ "$choice" -gt ${#ALL_FOLDERS[@]} ]; then
     echo "Invalid choice"
     exit 1
 fi
 
-# Get selected folder
 SELECTED="${ALL_FOLDERS[$((choice-1))]}"
 DEST="$VAULT/$SELECTED/plugins/smart-connections"
 
