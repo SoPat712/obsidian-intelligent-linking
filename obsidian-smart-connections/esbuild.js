@@ -140,6 +140,9 @@ esbuild.build({
     'http',
     'url',
   ],
+  alias: {
+    'smart-plugins-obsidian/utils.js': './src/smart-plugins-obsidian-stub.js',
+  },
   define: {
     'process.env.DEFAULT_OPEN_ROUTER_API_KEY': JSON.stringify(process.env.DEFAULT_OPEN_ROUTER_API_KEY || ''),
   },

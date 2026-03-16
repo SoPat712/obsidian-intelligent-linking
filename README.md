@@ -8,20 +8,50 @@ This fork removes all pro features and enables them for all. I'll start working 
 
 ## Quick Start
 
-1. Build the plugin:
+1. Clone the repo with submodules:
 ```bash
-cd obsidian-smart-connections && npm run build
+git clone https://github.com/SoPat712/obsidian-intelligent-linking.git
+cd obsidian-intelligent-linking
+git submodule update --init --recursive
 ```
 
-2. Deploy to your vault:
+2. Install dependencies — the jsbrains packages must be installed at two levels so they can resolve each other:
+```bash
+# Install all jsbrains sub-packages at the jsbrains root
+cd jsbrains
+npm install --ignore-scripts \
+  ./smart-actions ./smart-blocks ./smart-chat-model ./smart-cluster-groups \
+  ./smart-clusters ./smart-collections ./smart-completions ./smart-components \
+  ./smart-contexts ./smart-directories ./smart-embed-model ./smart-entities \
+  ./smart-environment ./smart-events ./smart-fs ./smart-groups \
+  ./smart-http-request ./smart-model ./smart-notices ./smart-rank-model \
+  ./smart-settings ./smart-sources ./smart-types ./smart-utils ./smart-view
+cd ..
+
+# Install plugin dependencies including all jsbrains packages
+cd obsidian-smart-connections
+npm install --ignore-scripts \
+  ../jsbrains/smart-actions ../jsbrains/smart-blocks ../jsbrains/smart-chat-model \
+  ../jsbrains/smart-cluster-groups ../jsbrains/smart-clusters ../jsbrains/smart-collections \
+  ../jsbrains/smart-completions ../jsbrains/smart-components ../jsbrains/smart-contexts \
+  ../jsbrains/smart-directories ../jsbrains/smart-embed-model ../jsbrains/smart-entities \
+  ../jsbrains/smart-environment ../jsbrains/smart-events ../jsbrains/smart-fs \
+  ../jsbrains/smart-groups ../jsbrains/smart-http-request ../jsbrains/smart-model \
+  ../jsbrains/smart-notices ../jsbrains/smart-rank-model ../jsbrains/smart-settings \
+  ../jsbrains/smart-sources ../jsbrains/smart-types ../jsbrains/smart-utils ../jsbrains/smart-view
+cd ..
+```
+
+3. Build and deploy:
 ```bash
 ./deploy.sh /path/to/your/vault
 ```
 
 The script will list all folders in your vault (prioritizing `.obsidian` and similar), let you pick one, and copy the plugin files into `<selected>/plugins/smart-connections/`.
 
-3. Restart Obsidian and enable the plugin in Settings → Community Plugins.
-3.1 If you're using this to contribute code, I recommend the Hot Reload plugin by pjeby. It makes testing your code a LOT easier.
+4. Restart Obsidian and enable the plugin in Settings → Community Plugins.
+
+> **Note for contributors:** I recommend the Hot Reload plugin by pjeby. It makes testing your code a LOT easier.
 
 ## Why This Fork Exists
 

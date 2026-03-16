@@ -1,8 +1,8 @@
 [submodule "jsbrains"]
 	path = jsbrains
-	url = git@github.com:SoPat712/jsbrains.git
+	url = https://github.com/SoPat712/jsbrains.git
 	branch = main
 [submodule "obsidian-smart-env"]
 	path = obsidian-smart-env
-	url = git@github.com:SoPat712/obsidian-smart-env.git
+	url = https://github.com/SoPat712/obsidian-smart-env.git
 	branch = main
