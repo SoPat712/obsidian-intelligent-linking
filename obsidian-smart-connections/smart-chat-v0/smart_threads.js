@@ -32,14 +32,14 @@ export class SmartThreads extends SmartSources {
   async init_items() {
     // ensure source_dir exists
     if(!(await this.fs.exists(this.source_dir))) await this.fs.mkdir(this.source_dir);
-    (await this.fs.list(this.source_dir))
-      .filter(file => this.source_adapters?.[file.extension]) // Skip files without source adapter
-      .forEach(file => {
-        const key = file.path.replace(this.source_dir + '/', '').replace('.' + file.extension, '');
-        this.items[key] = new this.item_type(this.env, { path: file.path, key });
-        this.items[key].source_adapter.import();
-      })
-    ;
+    const thread_files = (await this.fs.list(this.source_dir))
+      .filter(file => this.source_adapters?.[file.extension]);
+    await Promise.all(thread_files.map(async (file) => {
+      const key = file.path.replace(this.source_dir + '/', '').replace('.' + file.extension, '');
+      const item = new this.item_type(this.env, { path: file.path, key });
+      this.items[key] = item;
+      await item.import();
+    }));
   }
 
   /**
@@ -199,10 +199,6 @@ export class SmartThreads extends SmartSources {
 
   // disable embed_model for SmartThreads
   get embed_model() { return null; }
-  async process_embed_queue() {
-    console.log("skipping embed queue processing for SmartThreads");
-  }
-  async process_load_queue() {
-    console.log("skipping load queue processing for SmartThreads");
-  }
+  async process_embed_queue() {}
+  async process_load_queue() {}
 }

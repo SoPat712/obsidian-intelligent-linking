@@ -42,8 +42,9 @@ export class EnvJsonThreadSourceAdapter extends ThreadSourceAdapter {
   }
   from_source_data(source_data) {
     const parsed_data = JSON.parse(source_data);
+    const blocks = Array.isArray(parsed_data?.blocks) ? parsed_data.blocks : [];
     this.item.data = {...parsed_data, blocks: undefined};
-    parsed_data.blocks.forEach(block => {
+    blocks.forEach(block => {
       this.item.env.smart_messages.items[block.key] = new this.item.env.smart_messages.item_type(
         this.item.env,
         block
